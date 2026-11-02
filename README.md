@@ -17,7 +17,7 @@ into Studio 5000.
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
-Create .env   # then add your OpenAI API key
+Create .env   # then add your OpenAI API key - OPENAI_API_KEY=
 pytest
 ```
 
