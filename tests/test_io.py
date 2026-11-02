@@ -40,6 +40,12 @@ def test_unknown_type_raises_with_line_number(tmp_path: Path) -> None:
         read_equipment(path)
 
 
+def test_empty_name_raises_with_line_number(tmp_path: Path) -> None:
+    path = write_csv(tmp_path, "name,type,description\nP101,pump,Feed\n,valve,Unnamed valve\n")
+    with pytest.raises(ValueError, match=r"Line 3: invalid equipment \(name: "):
+        read_equipment(path)
+
+
 def test_missing_column_raises(tmp_path: Path) -> None:
     path = write_csv(tmp_path, "name,type\nP101,pump\n")
     with pytest.raises(ValueError, match="missing required columns: description"):

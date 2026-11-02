@@ -18,6 +18,17 @@ def test_equipment_rejects_unknown_type() -> None:
         Equipment(name="M101", type="mixer")
 
 
+@pytest.mark.parametrize("name", ["", " ", "   "])
+def test_equipment_rejects_empty_name(name: str) -> None:
+    with pytest.raises(ValidationError):
+        Equipment(name=name, type="pump")
+
+
+def test_equipment_strips_whitespace() -> None:
+    pump = Equipment(name=" P101 ", type="pump", description="  Feed pump  ")
+    assert (pump.name, pump.description) == ("P101", "Feed pump")
+
+
 def test_tag_accepts_data_type_as_string() -> None:
     tag = Tag(name="P101_Run_Cmd", data_type="BOOL", equipment="P101")
     assert tag.data_type is DataType.BOOL

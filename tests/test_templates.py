@@ -1,4 +1,5 @@
 import pytest
+from pydantic import ValidationError
 
 from logixconfig.models import DataType, Equipment, EquipmentType
 from logixconfig.templates import TEMPLATES, tags_for
@@ -50,6 +51,11 @@ def test_description_falls_back_to_name() -> None:
 def test_same_input_gives_same_output() -> None:
     pump = Equipment(name="P101", type="pump", description="Feed pump")
     assert tags_for(pump) == tags_for(pump)
+
+
+def test_empty_equipment_name_cannot_produce_underscore_tags() -> None:
+    with pytest.raises(ValidationError):
+        tags_for(Equipment(name="", type="pump"))
 
 
 def test_every_equipment_type_has_a_template() -> None:

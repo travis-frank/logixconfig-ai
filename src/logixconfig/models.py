@@ -2,7 +2,7 @@
 
 from enum import Enum
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class DataType(str, Enum):
@@ -21,7 +21,9 @@ class EquipmentType(str, Enum):
 
 
 class Equipment(BaseModel):
-    name: str
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    name: str = Field(min_length=1)
     type: EquipmentType
     description: str = ""
 

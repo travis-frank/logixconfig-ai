@@ -3,6 +3,8 @@
 import csv
 from pathlib import Path
 
+from pydantic import ValidationError
+
 from logixconfig.models import Equipment, EquipmentType
 
 REQUIRED_COLUMNS = ("name", "type", "description")
@@ -30,10 +32,16 @@ def _check_columns(fieldnames: list[str]) -> None:
 
 def _row_to_equipment(row: dict[str, str], line_number: int) -> Equipment:
     values = {key.strip().lower(): (value or "").strip() for key, value in row.items() if key}
-    return Equipment(
-        name=values["name"],
-        type=_parse_type(values["type"], line_number),
-        description=values["description"],
+    equipment_type = _parse_type(values["type"], line_number)
+    try:
+        return Equipment(name=values["name"], type=equipment_type, description=values["description"])
+    except ValidationError as error:
+        raise ValueError(f"Line {line_number}: invalid equipment ({_summarize(error)})") from None
+
+
+def _summarize(error: ValidationError) -> str:
+    return "; ".join(
+        f"{'.'.join(str(part) for part in detail['loc'])}: {detail['msg']}" for detail in error.errors()
     )
 
 
