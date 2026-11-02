@@ -9,6 +9,7 @@ from pydantic import BaseModel
 from logixconfig.models import Tag
 
 MAX_TAG_NAME_LENGTH = 40
+MAX_DESCRIPTION_LENGTH = 512  # Studio 5000 tag description limit; confirm against 1756-RM014
 
 _ALLOWED_CHARS = re.compile(r"[A-Za-z0-9_]+")
 _VALID_FIRST_CHAR = re.compile(r"[A-Za-z_]")
@@ -93,10 +94,16 @@ def duplicate_issues(tags: list[Tag]) -> list[Issue]:
 
 
 def description_issues(tag: Tag) -> list[Issue]:
-    if tag.description.strip():
-        return []
-    message = f"Tag '{tag.name}' has no description"
-    return [Issue(tag_name=tag.name, severity=Severity.WARNING, rule="missing_description", message=message)]
+    if not tag.description.strip():
+        message = f"Tag '{tag.name}' has no description"
+        return [Issue(tag_name=tag.name, severity=Severity.WARNING, rule="missing_description", message=message)]
+    if len(tag.description) > MAX_DESCRIPTION_LENGTH:
+        message = (
+            f"Tag '{tag.name}' description is {len(tag.description)} characters, "
+            f"max is {MAX_DESCRIPTION_LENGTH}"
+        )
+        return [_error(tag.name, "description_too_long", message)]
+    return []
 
 
 def validate(tags: list[Tag]) -> list[Issue]:

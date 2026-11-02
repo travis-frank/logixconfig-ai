@@ -76,6 +76,21 @@ def test_missing_description_is_a_warning(description: str) -> None:
     assert [(issue.rule, issue.severity) for issue in issues] == [("missing_description", Severity.WARNING)]
 
 
+def test_512_char_description_is_allowed() -> None:
+    assert validate([make_tag("P101_Run", description="d" * 512)]) == []
+
+
+def test_513_char_description_is_an_error() -> None:
+    issues = validate([make_tag("P101_Run", description="d" * 513)])
+    assert [(issue.rule, issue.severity) for issue in issues] == [("description_too_long", Severity.ERROR)]
+
+
+def test_long_equipment_description_makes_tag_description_too_long() -> None:
+    tags = tags_for(Equipment(name="P101", type="pump", description="d" * 501))
+    too_long = {issue.tag_name for issue in validate(tags) if issue.rule == "description_too_long"}
+    assert too_long == {"P101_Run_Cmd", "P101_Run_Fb"}
+
+
 def test_has_errors_ignores_warnings() -> None:
     warnings_only = validate([make_tag("P101_Run", description="")])
     assert warnings_only
