@@ -1,0 +1,9 @@
+name,type,description
+P101,pump,Crude transfer pump A
+P102,pump,Crude transfer pump B
+XV101,valve,Tank TK-100 inlet valve
+XV102,valve,Tank TK-100 outlet valve
+XV103,valve,Pipeline shipping valve
+LT101,level_transmitter,Tank TK-100 level
+PT101,pressure_transmitter,Transfer pump suction pressure
+PT102,pressure_transmitter,Transfer pump discharge pressure
