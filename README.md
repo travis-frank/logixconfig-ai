@@ -1,15 +1,29 @@
 # logixconfig-ai
 
-A Python tool that turns a plain-English process description (or an equipment
-CSV) into validated Rockwell Logix tags, draft documentation, and a starter
-.L5X file.
+A Python tool that turns a plain-English process description (or an equipment CSV) into validated Rockwell Logix tags, draft documentation, and a starter .L5X file.
 
-An LLM turns the description into a structured equipment list. Deterministic
-templates turn that list into tag names, and a deterministic validator checks
-them. The LLM never writes tag names directly.
+An LLM turns the description into a structured equipment list. Deterministic templates turn that list into tag names, and a deterministic validator checks them. The LLM never writes tag names directly.
 
-Status: early development. The generated .L5X has not been tested by importing
-into Studio 5000.
+Status: early development. The generated .L5X has not been tested by importing into Studio 5000.
+
+## L5X output
+
+The .L5X follows one profile: a v24-style, non-safety project for a 1756-L71 controller, with controller-scoped tags, one MainProgram with an empty MainRoutine and one continuous MainTask.
+
+Based on Rockwell's Logix 5000 Controllers Import/Export Reference Manual (1756-RM014D): the tag element layout, the order of child elements inside a tag, and the data formats (raw hex followed by decorated values).
+
+Unverified:
+
+- Importing the file into Studio 5000.
+- The controller skeleton values (revisions, module identity, chassis size, and project settings)
+- The tag name rules and the 512 character description limit. These are not stated in 1756-RM014D; see the Logix 5000 Controllers Common Procedures manual(1756-PM001).
+
+## Roadmap
+
+- A profile for newer Studio 5000 versions.
+- Safety (GuardLogix) projects, which need the tag Class attribute and safety
+  project settings.
+- Other controllers, such as CompactLogix.
 
 ## Setup
 
