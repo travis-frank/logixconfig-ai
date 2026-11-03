@@ -1,7 +1,5 @@
 <!--
-  Expected Tag elements, one per supported data type. The tags follow the format of a
-  sample Studio 5000 v24.02 export from a public repository. The Description placement
-  follows 1756-RM014D p.122-123 and the data format order follows p.42.
+  Expected Tag elements, one per supported data type. The tags follow the format of a sample Studio 5000 v24.02 export. The Description placement follows 1756-RM014D p.122-123 and the data format order follows p.42.
 -->
 <Tags>
   <Tag Name="P101_Run_Cmd" TagType="Base" DataType="BOOL" Radix="Decimal" Constant="false" ExternalAccess="Read/Write">

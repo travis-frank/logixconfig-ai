@@ -69,14 +69,14 @@ NAME_RULES: dict[str, NameRule] = {
 }
 
 
-def name_issues(name: str) -> list[Issue]:
+def name_issues(name: str, label: str = "Tag name") -> list[Issue]:
     if not name:
-        return [_error(name, "empty_name", "Tag name must not be empty")]
+        return [_error(name, "empty_name", f"{label} must not be empty")]
     issues = []
     for rule, check in NAME_RULES.items():
         problem = check(name)
         if problem:
-            issues.append(_error(name, rule, f"Tag name '{name}' {problem}"))
+            issues.append(_error(name, rule, f"{label} '{name}' {problem}"))
     return issues
 
 
