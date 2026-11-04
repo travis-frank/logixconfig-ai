@@ -1,7 +1,7 @@
 import csv
 from pathlib import Path
 
-from logixconfig.io import render_docs, suggested_alarm_rows, write_docs, write_tags_csv
+from logixconfig.io import NARRATIVE_HEADING, render_docs, suggested_alarm_rows, write_docs, write_tags_csv
 from logixconfig.models import Equipment
 from logixconfig.templates import tags_for
 
@@ -46,6 +46,17 @@ def test_docs_list_every_equipment_item_and_tag() -> None:
     assert "| LT101 | level_transmitter | Tank TK-100 level |" in docs
     for tag in tags:
         assert f"| {tag.name} | {tag.data_type.value} |" in docs
+
+
+def test_docs_without_narrative_have_no_narrative_section() -> None:
+    assert NARRATIVE_HEADING not in render_docs([PUMP], tags_for(PUMP))
+    assert NARRATIVE_HEADING not in render_docs([PUMP], tags_for(PUMP), narrative="")
+
+
+def test_docs_append_narrative_last() -> None:
+    docs = render_docs([PUMP], tags_for(PUMP), narrative="  Pump P101 transfers crude.\n")
+    assert docs.index("## Suggested Alarms") < docs.index(NARRATIVE_HEADING)
+    assert docs.endswith(f"{NARRATIVE_HEADING}\n\nPump P101 transfers crude.\n")
 
 
 def test_docs_escape_pipes_in_descriptions() -> None:

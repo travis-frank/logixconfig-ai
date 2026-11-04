@@ -13,10 +13,11 @@ dependencies = [
     "lxml>=5",
     "openai>=3,<4",
     "langgraph==1.2.19",
+    "python-dotenv>=1,<2",
 ]
 
 [project.scripts]
-logixconfig = "logixconfig.cli:main"
+logixconfig = "logixconfig.cli:entry"
 
 [project.optional-dependencies]
 dev = [
