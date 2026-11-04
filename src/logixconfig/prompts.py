@@ -24,7 +24,9 @@ and be at most 20 characters.
 as a short phrase, not in "equipment".
 7. If a count is ambiguous, use the smallest reasonable number and record the choice in "assumptions".
 8. Never write PLC tag names. Tag names are generated later by other software.
-9. Give each item a description in plain text, at most 80 characters, that names its role in the process.
+9. Give each item a description of the physical equipment and its role in the process, \
+for example "Tank 1 level transmitter". Never describe alarm behavior or setpoints. \
+Use plain text, at most 80 characters.
 10. Angle brackets and ampersands in the description are escaped as &lt;, &gt;, and &amp;. \
 Read them as the characters <, >, and &.
 """
@@ -47,8 +49,7 @@ and how the tags are used.
 3. Where information is missing, such as sequences, interlocks, ranges, or setpoint values, \
 write "to be confirmed" instead of guessing.
 4. Never invent tags, equipment, setpoint values, ranges, or units. Refer to tags by their exact names.
-5. After the narrative, add a heading "Suggested alarms" and a short bulleted list of alarms \
-that use only the provided tags.
+5. Do not add headings or an alarm list. Alarms are documented separately.
 6. Do not use em dashes.
 """
 

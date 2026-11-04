@@ -116,6 +116,9 @@ def test_planner_prompt_covers_required_rules() -> None:
         "smallest reasonable number",
         '"assumptions"',
         "Never write PLC tag names",
+        "physical equipment and its role in the process",
+        '"Tank 1 level transmitter"',
+        "Never describe alarm behavior or setpoints",
         "plain text, at most 80 characters",
         "escaped as &lt;, &gt;, and &amp;",
     ):
@@ -141,10 +144,14 @@ def test_narrative_prompt_covers_required_rules() -> None:
         '"to be confirmed"',
         "Never invent tags",
         "setpoint values",
-        "Suggested alarms",
+        "Do not add headings or an alarm list",
         "Do not use em dashes",
     ):
         assert phrase in prompt, phrase
+
+
+def test_narrative_prompt_does_not_request_alarm_section() -> None:
+    assert "suggested alarms" not in NARRATIVE_SYSTEM_PROMPT.lower()
 
 
 def test_prompts_contain_no_em_dashes() -> None:
