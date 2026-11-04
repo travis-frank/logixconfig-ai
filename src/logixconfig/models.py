@@ -28,6 +28,12 @@ class Equipment(BaseModel):
     description: str = ""
 
 
+class PlannerOutput(BaseModel):
+    equipment: list[Equipment]
+    assumptions: list[str] = Field(default_factory=list)
+    unsupported: list[str] = Field(default_factory=list)
+
+
 class Tag(BaseModel):
     name: str
     data_type: DataType
