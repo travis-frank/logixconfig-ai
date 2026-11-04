@@ -15,14 +15,14 @@ class FakeLLM:
     def __init__(self, plans: list[PlannerOutput | LLMError] | None = None, narrative: str = CANNED_NARRATIVE) -> None:
         self.plans: deque[PlannerOutput | LLMError] = deque(plans or [])
         self.narrative = narrative
-        self.plan_calls: list[tuple[str, list[Issue]]] = []
+        self.plan_calls: list[tuple[str, list[Issue], PlannerOutput | None]] = []
         self.narrative_calls: list[tuple[list[Equipment], list[Tag]]] = []
 
     def queue(self, *results: PlannerOutput | LLMError) -> None:
         self.plans.extend(results)
 
-    def plan(self, description: str, issues: list[Issue]) -> PlannerOutput:
-        self.plan_calls.append((description, list(issues)))
+    def plan(self, description: str, issues: list[Issue], previous: PlannerOutput | None = None) -> PlannerOutput:
+        self.plan_calls.append((description, list(issues), previous))
         if not self.plans:
             raise AssertionError("FakeLLM.plan was called with no queued results")
         result = self.plans.popleft()

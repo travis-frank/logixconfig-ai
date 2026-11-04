@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from logixconfig.models import Equipment
+from logixconfig.models import Equipment, PlannerOutput
 from logixconfig.prompts import (
     DESCRIPTION_CLOSE,
     DESCRIPTION_OPEN,
@@ -81,6 +81,20 @@ def test_retry_appends_every_issue() -> None:
     for issue in issues:
         assert f"[{issue.rule}] {issue.message}" in retry
     assert "only the changes needed" in retry
+
+
+def test_retry_includes_previous_output_as_assistant_message() -> None:
+    previous = PlannerOutput(equipment=[Equipment(name="P101_", type="pump")], assumptions=["one pump"])
+    issues = validate_equipment(previous.equipment)
+    messages = planner_messages(DESCRIPTION, issues, previous)
+    assert [message["role"] for message in messages] == ["system", "user", "assistant", "user"]
+    assert PlannerOutput.model_validate_json(messages[2]["content"]) == previous
+    assert issues[0].message in messages[3]["content"]
+
+
+def test_previous_is_ignored_without_issues() -> None:
+    previous = PlannerOutput(equipment=[Equipment(name="P101", type="pump")])
+    assert [message["role"] for message in planner_messages(DESCRIPTION, [], previous)] == ["system", "user"]
 
 
 def test_retry_keeps_the_original_description() -> None:

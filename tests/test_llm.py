@@ -86,7 +86,7 @@ def test_fake_llm_returns_queued_plans_in_order(fake_llm: FakeLLM) -> None:
     issues = validate_equipment(plan_result("P101_").equipment)
     assert fake_llm.plan("desc", []).equipment[0].name == "P101_"
     assert fake_llm.plan("desc", issues).equipment[0].name == "P101"
-    assert fake_llm.plan_calls == [("desc", []), ("desc", issues)]
+    assert fake_llm.plan_calls == [("desc", [], None), ("desc", issues, None)]
 
 
 def test_fake_llm_raises_queued_errors(fake_llm: FakeLLM) -> None:
@@ -164,6 +164,15 @@ def test_plan_sends_issues_on_retry() -> None:
     issues = validate_equipment([Equipment(name="P101_", type="pump")])
     llm.plan("One pump", issues)
     assert issues[0].message in responses.calls[0]["input"][-1]["content"]
+
+
+def test_plan_sends_previous_output_on_retry() -> None:
+    llm, responses = openai_llm(api_response(parsed=planner_response("P101")))
+    previous = plan_result("P101_")
+    llm.plan("One pump", validate_equipment(previous.equipment), previous)
+    roles = [message["role"] for message in responses.calls[0]["input"]]
+    assert roles == ["system", "user", "assistant", "user"]
+    assert '"P101_"' in responses.calls[0]["input"][2]["content"]
 
 
 def test_planner_schema_has_no_unsupported_constraints() -> None:

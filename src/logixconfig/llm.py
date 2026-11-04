@@ -26,7 +26,7 @@ class LLMError(Exception):
 
 @runtime_checkable
 class LLM(Protocol):
-    def plan(self, description: str, issues: list[Issue]) -> PlannerOutput: ...
+    def plan(self, description: str, issues: list[Issue], previous: PlannerOutput | None = None) -> PlannerOutput: ...
 
     def write_narrative(self, equipment: list[Equipment], tags: list[Tag]) -> str: ...
 
@@ -85,10 +85,10 @@ class OpenAILLM:
     def __repr__(self) -> str:
         return f"OpenAILLM(model={self._model!r})"
 
-    def plan(self, description: str, issues: list[Issue]) -> PlannerOutput:
+    def plan(self, description: str, issues: list[Issue], previous: PlannerOutput | None = None) -> PlannerOutput:
         response = self._request(
             self._client.responses.parse,
-            input=planner_messages(description, issues),
+            input=planner_messages(description, issues, previous),
             text_format=PlannerResponse,
         )
         parsed = response.output_parsed

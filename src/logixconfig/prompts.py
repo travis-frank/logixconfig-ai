@@ -2,7 +2,7 @@
 
 import json
 
-from logixconfig.models import Equipment, Tag
+from logixconfig.models import Equipment, PlannerOutput, Tag
 from logixconfig.validator import Issue
 
 DESCRIPTION_OPEN = "<process_description>"
@@ -53,12 +53,16 @@ that use only the provided tags.
 """
 
 
-def planner_messages(description: str, issues: list[Issue]) -> list[dict[str, str]]:
+def planner_messages(
+    description: str, issues: list[Issue], previous: PlannerOutput | None = None
+) -> list[dict[str, str]]:
     messages = [
         {"role": "system", "content": PLANNER_SYSTEM_PROMPT},
         {"role": "user", "content": wrap_description(description)},
     ]
     if issues:
+        if previous is not None:
+            messages.append({"role": "assistant", "content": previous.model_dump_json(indent=2)})
         messages.append({"role": "user", "content": retry_message(issues)})
     return messages
 
