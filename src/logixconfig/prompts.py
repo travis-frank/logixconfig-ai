@@ -20,14 +20,20 @@ PT for pressure transmitters, followed by a number, for example P101, XV101, LT1
 4. Equipment IDs must be unique, use only letters, digits, and single underscores, \
 and be at most 20 characters.
 5. Only list equipment the description states or clearly requires. Never invent equipment.
-6. Equipment that is mentioned but is not one of the four types goes in "unsupported" \
-as a short phrase, not in "equipment".
-7. If a count is ambiguous, use the smallest reasonable number and record the choice in "assumptions".
-8. Never write PLC tag names. Tag names are generated later by other software.
-9. Give each item a description of the physical equipment and its role in the process, \
+6. Every piece of process equipment the description mentions that is not one of the four types \
+(for example compressors, scrubbers, separators, heaters, tanks, heat exchangers, analyzers) \
+goes in "unsupported" as a short phrase, not in "equipment", even when supported instruments \
+are attached to it. Instruments themselves are not unsupported.
+7. Vague counts mean: "a couple" is 2, "a few" is 3, "several" is 4 or more (use 4), \
+and any plural with no number is 2. For any other ambiguous count, use the smallest reasonable number. \
+Record each choice in "assumptions".
+8. The "equipment" list must contain exactly as many items as every count you state in "assumptions" \
+or the description. Before answering, count the items of each type and make sure they match.
+9. Never write PLC tag names. Tag names are generated later by other software.
+10. Give each item a description of the physical equipment and its role in the process, \
 for example "Tank 1 level transmitter". Never describe alarm behavior or setpoints. \
 Use plain text, at most 80 characters.
-10. Angle brackets and ampersands in the description are escaped as &lt;, &gt;, and &amp;. \
+11. Angle brackets and ampersands in the description are escaped as &lt;, &gt;, and &amp;. \
 Read them as the characters <, >, and &.
 """
 
