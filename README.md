@@ -37,7 +37,7 @@ pytest
 
 ## API
 
-The API is local-only by default: `logixconfig-api` binds to 127.0.0.1:8000, so only this machine can reach it. Results are stored in a local SQLite file (`logixconfig.db`, or the `DATABASE_URL` environment variable). Download files are generated on demand from the stored data; nothing is written to disk.
+The API is local-only by default: `logixconfig-api` binds to 127.0.0.1:8000. Results are stored in a local SQLite file (`logixconfig.db`, or the `DATABASE_URL` environment variable). Download files are generated on demand from the stored data, nothing is written to disk.
 
 ```bash
 logixconfig-api                      # http://127.0.0.1:8000, docs at /docs
