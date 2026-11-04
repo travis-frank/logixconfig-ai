@@ -35,6 +35,32 @@ Create .env   # then add your OpenAI API key (OPENAI_API_KEY=) and OpenAI model 
 pytest
 ```
 
+## API
+
+The API is local-only by default: `logixconfig-api` binds to 127.0.0.1:8000, so only this machine can reach it. Results are stored in a local SQLite file (`logixconfig.db`, or the `DATABASE_URL` environment variable). Download files are generated on demand from the stored data; nothing is written to disk.
+
+```bash
+logixconfig-api                      # http://127.0.0.1:8000, docs at /docs
+
+curl -s -X POST http://127.0.0.1:8000/generate \
+  -H "Content-Type: application/json" \
+  -d '{"description": "Tank 1 has a level transmitter and one transfer pump.", "controller_name": "Skid01"}'
+
+curl -s http://127.0.0.1:8000/generations/<id>
+curl -s -O http://127.0.0.1:8000/generations/<id>/download/tags.csv
+curl -s -O http://127.0.0.1:8000/generations/<id>/download/Skid01.L5X
+```
+
+Downloadable files are `tags.csv`, `docs.md`, `io_list.csv`, and `<controller_name>.L5X`. A description must be 1 to 2000 characters. If the pipeline cannot produce a valid equipment list, `/generate` returns 422 with the validation issues.
+
+To require a token, set `LOGIXCONFIG_API_TOKEN` and send it with every request:
+
+```bash
+curl -s -H "Authorization: Bearer $LOGIXCONFIG_API_TOKEN" http://127.0.0.1:8000/generations/<id>
+```
+
+Set a token before binding to any other address with `--host`.
+
 ## Trademarks
 
 Not affiliated with or endorsed by Rockwell Automation.
