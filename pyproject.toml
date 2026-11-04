@@ -12,6 +12,7 @@ dependencies = [
     "pydantic>=2",
     "lxml>=5",
     "openai>=3,<4",
+    "langgraph==1.2.19",
 ]
 
 [project.scripts]
