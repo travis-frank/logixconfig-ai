@@ -31,7 +31,7 @@ Unverified:
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
-Create .env   # then add your OpenAI API key - OPENAI_API_KEY=
+Create .env   # then add your OpenAI API key (OPENAI_API_KEY=) and OpenAI model (OPENAI_MODEL=)
 pytest
 ```
 
