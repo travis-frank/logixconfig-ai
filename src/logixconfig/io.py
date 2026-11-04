@@ -1,6 +1,7 @@
 """Read equipment lists from CSV, and write tags and draft documentation."""
 
 import csv
+from io import StringIO
 from pathlib import Path
 
 from pydantic import ValidationError
@@ -79,11 +80,20 @@ def _is_blank(row: dict[str, str]) -> bool:
 
 
 def write_tags_csv(tags: list[Tag], path: str | Path) -> None:
-    with open(path, "w", newline="", encoding="utf-8") as file:
-        writer = csv.writer(file)
-        writer.writerow(TAG_CSV_COLUMNS)
-        for tag in tags:
-            writer.writerow([tag.name, tag.data_type.value, tag.description, tag.equipment])
+    Path(path).write_text(render_tags_csv(tags), encoding="utf-8", newline="")
+
+
+def render_tags_csv(tags: list[Tag]) -> str:
+    rows = [[tag.name, tag.data_type.value, tag.description, tag.equipment] for tag in tags]
+    return render_csv(TAG_CSV_COLUMNS, rows)
+
+
+def render_csv(columns: tuple[str, ...], rows: list[list[str]]) -> str:
+    buffer = StringIO(newline="")
+    writer = csv.writer(buffer)
+    writer.writerow(columns)
+    writer.writerows(rows)
+    return buffer.getvalue()
 
 
 NARRATIVE_HEADING = "## Control narrative"

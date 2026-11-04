@@ -1,10 +1,10 @@
 """Classify tags as physical I/O or internal values and write an I/O list."""
 
-import csv
 from enum import Enum
 from pathlib import Path
 from typing import NamedTuple
 
+from logixconfig.io import render_csv
 from logixconfig.models import Tag
 
 
@@ -46,8 +46,8 @@ def io_rows(tags: list[Tag]) -> list[IoRow]:
 
 
 def write_io_list(rows: list[IoRow], path: str | Path) -> None:
-    with open(path, "w", newline="", encoding="utf-8") as file:
-        writer = csv.writer(file)
-        writer.writerow(IO_LIST_COLUMNS)
-        for row in rows:
-            writer.writerow([row.tag, row.signal_type.value, row.description])
+    Path(path).write_text(render_io_list(rows), encoding="utf-8", newline="")
+
+
+def render_io_list(rows: list[IoRow]) -> str:
+    return render_csv(IO_LIST_COLUMNS, [[row.tag, row.signal_type.value, row.description] for row in rows])
