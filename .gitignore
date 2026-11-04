@@ -13,5 +13,9 @@ dist/
 # Generated output
 out/
 
+# Local databases
+*.db
+*.db-journal
+
 # OS
 .DS_Store
