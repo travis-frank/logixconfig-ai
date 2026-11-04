@@ -1,11 +1,26 @@
 """Offline checks of the eval cases file and scoring. The real LLM eval run is not part of pytest."""
 
+import argparse
 from collections import Counter
 from pathlib import Path
 
-from logixconfig.evals import EvalCase, case_differences, count_differences, load_cases, pass_rate, EvalResult
+import pytest
+
+from conftest import FakeLLM
+from logixconfig.evals import (
+    CaseSummary,
+    EvalCase,
+    EvalResult,
+    case_differences,
+    count_differences,
+    load_cases,
+    pass_rate,
+    positive_int,
+    print_summary,
+    run_case_repeatedly,
+)
 from logixconfig.graph import Status, initial_state
-from logixconfig.models import Equipment, EquipmentType
+from logixconfig.models import Equipment, EquipmentType, PlannerOutput
 from logixconfig.validator import Issue, Severity
 
 CASES = Path(__file__).parent.parent / "evals" / "cases.json"
@@ -63,6 +78,32 @@ def test_failed_pipeline_is_a_failed_case() -> None:
     state["status"] = Status.FAILED
     state["issues"] = [Issue(name="", severity=Severity.ERROR, rule="llm_error", message="timed out")]
     assert case_differences(make_case(pump=1), state) == ["pipeline status failed: timed out"]
+
+
+def test_case_passes_only_if_every_run_passes(fake_llm: FakeLLM, capsys: pytest.CaptureFixture[str]) -> None:
+    one_pump = PlannerOutput(equipment=[Equipment(name="P101", type="pump")])
+    two_pumps = PlannerOutput(equipment=[Equipment(name="P101", type="pump"), Equipment(name="P102", type="pump")])
+    fake_llm.queue(two_pumps, one_pump, two_pumps)
+    case = EvalCase(name="pumps", description="Two pumps.", expected={"pump": 2})
+
+    summary = run_case_repeatedly(case, fake_llm, runs=3)
+    assert summary.passes == 2
+    assert not summary.passed
+
+    print_summary(summary)
+    assert capsys.readouterr().out == "FAIL  pumps 2/3\n      run 2: pump: expected 2, got 1\n"
+
+
+def test_case_summary_all_runs_pass() -> None:
+    run = EvalResult(name="a", passed=True, differences=[])
+    assert CaseSummary(name="a", runs=[run, run, run]).passed
+    assert not CaseSummary(name="a", runs=[]).passed
+
+
+def test_runs_must_be_positive() -> None:
+    assert positive_int("3") == 3
+    with pytest.raises(argparse.ArgumentTypeError):
+        positive_int("0")
 
 
 def test_pass_rate() -> None:

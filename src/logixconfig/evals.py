@@ -1,8 +1,8 @@
 """Run the planner pipeline against evaluation cases using the real LLM.
 
-Usage: python -m logixconfig.evals [--cases evals/cases.json]
+Usage: python -m logixconfig.evals [--cases evals/cases.json] [--runs 3]
 
-Each case runs once. This costs API calls and is not part of pytest.
+Each case runs N times and passes only if every run passes. This costs API calls and is not part of pytest.
 """
 
 import argparse
@@ -72,19 +72,45 @@ def run_case(case: EvalCase, llm: LLM) -> EvalResult:
     return EvalResult(name=case.name, passed=not differences, differences=differences)
 
 
-def print_result(result: EvalResult) -> None:
-    print(f"{'PASS' if result.passed else 'FAIL'}  {result.name}")
-    for difference in result.differences:
-        print(f"      {difference}")
+class CaseSummary(BaseModel):
+    name: str
+    runs: list[EvalResult]
+
+    @property
+    def passes(self) -> int:
+        return sum(run.passed for run in self.runs)
+
+    @property
+    def passed(self) -> bool:
+        return bool(self.runs) and self.passes == len(self.runs)
+
+
+def run_case_repeatedly(case: EvalCase, llm: LLM, runs: int) -> CaseSummary:
+    return CaseSummary(name=case.name, runs=[run_case(case, llm) for _ in range(runs)])
+
+
+def print_summary(summary: CaseSummary) -> None:
+    print(f"{'PASS' if summary.passed else 'FAIL'}  {summary.name} {summary.passes}/{len(summary.runs)}")
+    for number, run in enumerate(summary.runs, start=1):
+        for difference in run.differences:
+            print(f"      run {number}: {difference}")
 
 
 def pass_rate(results: list[EvalResult]) -> float:
     return sum(result.passed for result in results) / len(results) if results else 0.0
 
 
+def positive_int(value: str) -> int:
+    number = int(value)
+    if number < 1:
+        raise argparse.ArgumentTypeError("must be at least 1")
+    return number
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="python -m logixconfig.evals", description=__doc__)
     parser.add_argument("--cases", type=Path, default=DEFAULT_CASES, help="Path to the cases JSON file")
+    parser.add_argument("--runs", type=positive_int, default=3, help="Runs per case (default 3)")
     args = parser.parse_args(argv)
 
     load_dotenv(find_dotenv(usecwd=True), override=False)
@@ -94,14 +120,18 @@ def main(argv: list[str] | None = None) -> int:
         print(f"error: {error}", file=sys.stderr)
         return 1
 
-    results = []
+    summaries = []
     for case in load_cases(args.cases):
-        result = run_case(case, llm)
-        print_result(result)
-        results.append(result)
-    passed = sum(result.passed for result in results)
-    print(f"\nPassed {passed}/{len(results)} ({pass_rate(results):.0%})")
-    return 0 if passed == len(results) else 1
+        summary = run_case_repeatedly(case, llm, args.runs)
+        print_summary(summary)
+        summaries.append(summary)
+
+    all_runs = [run for summary in summaries for run in summary.runs]
+    runs_passed = sum(run.passed for run in all_runs)
+    cases_passed = sum(summary.passed for summary in summaries)
+    print(f"\nRuns passed {runs_passed}/{len(all_runs)} ({pass_rate(all_runs):.0%})")
+    print(f"Cases passed (all {args.runs} runs) {cases_passed}/{len(summaries)}")
+    return 0 if cases_passed == len(summaries) else 1
 
 
 if __name__ == "__main__":
