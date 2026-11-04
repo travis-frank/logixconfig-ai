@@ -11,6 +11,7 @@ requires-python = ">=3.10"
 dependencies = [
     "pydantic>=2",
     "lxml>=5",
+    "openai>=3,<4",
 ]
 
 [project.scripts]
