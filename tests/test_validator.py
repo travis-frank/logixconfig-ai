@@ -61,7 +61,7 @@ def test_case_different_duplicates_are_rejected() -> None:
     issues = validate([make_tag("P101_Run"), make_tag("p101_RUN")])
     assert len(issues) == 1
     assert issues[0].rule == "duplicate"
-    assert issues[0].tag_name == "p101_RUN"
+    assert issues[0].name == "p101_RUN"
     assert "P101_Run" in issues[0].message
 
 
@@ -87,7 +87,7 @@ def test_513_char_description_is_an_error() -> None:
 
 def test_long_equipment_description_makes_tag_description_too_long() -> None:
     tags = tags_for(Equipment(name="P101", type="pump", description="d" * 501))
-    too_long = {issue.tag_name for issue in validate(tags) if issue.rule == "description_too_long"}
+    too_long = {issue.name for issue in validate(tags) if issue.rule == "description_too_long"}
     assert too_long == {"P101_Run_Cmd", "P101_Run_Fb"}
 
 
@@ -116,5 +116,5 @@ def test_template_tags_pass_validation() -> None:
 
 def test_long_equipment_name_makes_template_tag_too_long() -> None:
     tags = tags_for(Equipment(name="A" * 32, type="valve", description="Long valve"))
-    too_long = {issue.tag_name for issue in validate(tags) if issue.rule == "max_length"}
+    too_long = {issue.name for issue in validate(tags) if issue.rule == "max_length"}
     assert too_long == {"A" * 32 + "_Open_Cmd", "A" * 32 + "_Closed_Fb"}
